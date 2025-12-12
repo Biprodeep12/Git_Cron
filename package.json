@@ -1,0 +1,19 @@
+{
+  "name": "workflow",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --loader ts-node/esm src/core/agent.ts",
+    "start": "node dist/core/agent.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "openai": "^4.47.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
