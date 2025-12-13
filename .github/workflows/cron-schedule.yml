@@ -2,8 +2,11 @@ name: Daily Cron Job BRUH
 
 on:
   schedule:
-    - cron: "30 9 * * *"
+    - cron: "0 14 * * *"
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 concurrency:
   group: daily-cron
