@@ -1,4 +1,4 @@
-name: Daily Cron Job at 12:00PM IST
+name: Daily Cron Job BRUH
 
 on:
     schedule:
