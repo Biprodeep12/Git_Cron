@@ -1,6 +1,6 @@
 export type ManifestEntry = {
-    filePath: string;
-    summary: string;
-    next_steps: string[] | string;
-    updated_at: string
-}
+  filePath: string;
+  summary: string;
+  next_steps: string[];
+  updated_at: string;
+};

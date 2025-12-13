@@ -12,6 +12,32 @@ const client = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
 });
 
+const AI_PROMPT = `
+You are a senior software engineer AI agent.
+
+Your task is to UPGRADE the provided source file into a FULLY FUNCTIONAL, PRODUCTION-READY implementation.
+
+STRICT RULES:
+- NO mock logic, NO placeholders, NO fake delays, NO dummy returns.
+- The tool MUST perform real work using real APIs, SDKs, or system capabilities.
+- You MAY add imports, helper functions, types, environment variables, and dependencies if required.
+- You MUST keep the public function signature stable unless changing it is absolutely required for correctness.
+- The code MUST be runnable and realistic in a real production environment.
+- Error handling, input validation, and edge cases are REQUIRED.
+- If an external API is needed, assume API keys are provided via environment variables and document them.
+- Remove unnecessary comments, but KEEP essential documentation and JSDoc.
+- Return ONLY valid JSON. No explanations. No markdown.
+
+OUTPUT JSON FORMAT (MANDATORY):
+{
+  "updated_code": "FULL updated file content",
+  "summary": "Concise summary of what changed and why",
+  "next_steps": ["Concrete next improvements or integrations"]
+}
+
+If you detect a mock implementation, treating it as production-ready is a FAILURE.
+`
+
 function createToonPayload(entry: ManifestEntry, fileContent: string) {
   const nextStepsStr = (Array.isArray(entry.next_steps) 
     ? entry.next_steps 
@@ -38,11 +64,11 @@ async function main() {
     
     if (fs.existsSync(manifestPath)) {
         try {
-            manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-            if (!Array.isArray(manifest)) manifest = [];
+            const data = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+            manifest = Array.isArray(data) ? data : [];
         } catch (err) {
-            console.warn("Failed to parse manifest, starting fresh");
-            manifest = [];
+            console.error("Failed to parse manifest:", err instanceof Error ? err.message : String(err));
+            process.exit(1);
         }
     }
 
@@ -51,16 +77,18 @@ async function main() {
         process.exit(1);
     }
 
-    const fullPath = path.join(process.cwd(), manifest[0].filePath);
+    const data = manifest[0];
+
+    const fullPath = path.join(process.cwd(), data.filePath);
     const fileContent = fs.readFileSync(fullPath, "utf8");
-    const toonPayload = createToonPayload(manifest[0], fileContent);
+    const toonPayload = createToonPayload(data, fileContent);
 
     const response = await client.chat.completions.create({
-        model: "openai/gpt-oss-20b:free",
+        model: "mistralai/devstral-2512:free",
         messages: [
             {
                 role: "system",
-                content: "You are an AI agent analyzing a source file in TOON format. Return ONLY JSON with keys: updated_code (full improved code with unnecessary comments removed), summary, next_steps. Keep functionality intact. Remove any redundant or obvious comments while preserving important documentation."
+                content: AI_PROMPT
             },
             { role: "user", content: toonPayload }
         ],
@@ -92,12 +120,12 @@ async function main() {
         fs.mkdirSync(backupDir, { recursive: true });
     }
 
-    const backupPath = path.join(backupDir, path.basename(manifest[0].filePath) + ".bak");
+    const backupPath = path.join(backupDir, path.basename(data.filePath) + ".bak");
     fs.writeFileSync(backupPath, fileContent, "utf8");
 
     fs.writeFileSync(fullPath, parsed.updated_code, "utf8");
 
-    await saveToManifest(manifest[0].filePath, parsed.summary, parsed.next_steps);
+    await saveToManifest(data.filePath, parsed.summary, parsed.next_steps);
 
     console.log("File updated successfully!");
     console.log("Summary:", parsed.summary);

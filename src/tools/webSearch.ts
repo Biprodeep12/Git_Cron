@@ -1,37 +1,49 @@
+import fetch from 'node-fetch';
+
 export interface WebSearchOptions {
   limit?: number;
 }
 
-/**
- * Performs a mock web search. The function validates the input query and
- * returns a deterministic string that can be used in unit tests. It accepts
- * an optional options object that may be extended later.
- *
- * @example
- * await webSearch('cats');
- * // => 'search results for: cats'
- *
- * @param query   – The search query string. Must be non‑empty after trimming.
- * @param options – Optional configuration, e.g. a future `limit` feature.
- * @returns A promise that resolves to a string representing the mock search
- *          results.
- * @throws {Error} If the query is empty or only whitespace.
- */
 export async function webSearch(
   query: string,
   options: WebSearchOptions = {},
 ): Promise<string> {
-  const trimmedQuery = query.trim();
-  if (!trimmedQuery) {
-    throw new Error('webSearch: query must be a non‑empty string');
+  const trimmed = query.trim();
+  if (!trimmed) {
+    throw new Error('webSearch: query must be a non-empty string');
   }
 
-  const { limit } = options;
-  _void(limit);
+  const { limit = 10 } = options;
+  if (limit < 1 || limit > 100) {
+    throw new Error('limit must be between 1 and 100');
+  }
 
-  await new Promise((resolve) => setTimeout(resolve, 10));
+  const apiKey = process.env.WEB_SEARCH_API_KEY;
+  if (!apiKey) {
+    throw new Error('WEB_SEARCH_API_KEY environment variable not set');
+  }
 
-  return `search results for: ${trimmedQuery}`;
+  try {
+    const response = await fetch(
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(trimmed)}&format=json`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Search API error: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as Record<string, unknown>;
+    const results = (data.webPages as Record<string, unknown>)?.value || [];
+
+    if (!Array.isArray(results) || results.length === 0) {
+      return `No search results found for: ${trimmed}`;
+    }
+
+    return `Found ${results.length} results for "${trimmed}": ${(results as Array<Record<string, unknown>>)
+      .slice(0, limit)
+      .map((r: Record<string, unknown>) => r.name)
+      .join('; ')}`;
+  } catch (error) {
+    throw new Error(`Failed to search for "${trimmed}": ${error instanceof Error ? error.message : String(error)}`);
+  }
 }
-
-function _void(_value: unknown): void {}
