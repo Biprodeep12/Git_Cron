@@ -35,7 +35,7 @@ jobs:
       - name: Run cron script
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: npm run cron
+        run: npm run cron 2>&1 | tee cron.log
 
       - name: Commit & push changes (if any)
         run: |
@@ -47,3 +47,16 @@ jobs:
 
           git commit -m "chore: automated cron update"
           git push
+
+      - name: Send logs to Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          LOG_CONTENT=$(tail -n 40 cron.log | sed 's/"/\\"/g')
+
+          curl -H "Content-Type: application/json" \
+          -d "{
+            \"content\": \"**AI Cron Job Logs**\nRepository: ${{ github.repository }}\nAuthor: ${{ github.actor }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n\`\`\`\n$LOG_CONTENT\n\`\`\`\"
+          }" \
+          $DISCORD_WEBHOOK_URL

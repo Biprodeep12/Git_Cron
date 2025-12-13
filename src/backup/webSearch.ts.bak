@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 
 export interface WebSearchOptions {
   limit?: number;
@@ -31,14 +32,17 @@ export async function webSearch(
       throw new Error(`Search API error: ${response.statusText}`);
     }
 
-    const data = await response.json() as Record<string, unknown>;
+    const data = (await response.json()) as Record<string, unknown>;
     const results = (data.webPages as Record<string, unknown>)?.value || [];
 
     if (!Array.isArray(results) || results.length === 0) {
       return `No search results found for: ${trimmed}`;
     }
 
-    return `Found ${results.length} results for "${trimmed}": ${(results as Array<Record<string, unknown>>).slice(0, limit).map((r: Record<string, unknown>) => r.name).join('; ')}`;
+    return `Found ${results.length} results for "${trimmed}": ${(results as Array<Record<string, unknown>>)
+      .slice(0, limit)
+      .map((r: Record<string, unknown>) => r.name)
+      .join('; ')}`;
   } catch (error) {
     throw new Error(`Failed to search for "${trimmed}": ${error instanceof Error ? error.message : String(error)}`);
   }

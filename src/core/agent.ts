@@ -128,8 +128,11 @@ async function main() {
     await saveToManifest(data.filePath, parsed.summary, parsed.next_steps);
 
     console.log("File updated successfully!");
-    console.log("Summary:", parsed.summary);
-    console.log("Next steps:", parsed.next_steps.join(", "));
+    console.log(`
+        Updated file: ${parsed.updated_code}
+        Summary: ${parsed.summary}
+        Next steps: ${parsed.next_steps.join(", ")}
+        `);
 }
 
 main().catch(console.error);

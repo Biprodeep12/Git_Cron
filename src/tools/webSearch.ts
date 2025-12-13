@@ -2,20 +2,28 @@ import fetch from 'node-fetch';
 
 export interface WebSearchOptions {
   limit?: number;
+  safeSearch?: 'off' | 'moderate' | 'strict';
+  region?: string;
+}
+
+export interface SearchResult {
+  title: string;
+  url: string;
+  snippet: string;
 }
 
 export async function webSearch(
   query: string,
   options: WebSearchOptions = {},
-): Promise<string> {
+): Promise<SearchResult[]> {
   const trimmed = query.trim();
   if (!trimmed) {
     throw new Error('webSearch: query must be a non-empty string');
   }
 
-  const { limit = 10 } = options;
-  if (limit < 1 || limit > 100) {
-    throw new Error('limit must be between 1 and 100');
+  const { limit = 10, safeSearch = 'moderate', region = 'wt-wt' } = options;
+  if (limit < 1 || limit > 50) {
+    throw new Error('limit must be between 1 and 50');
   }
 
   const apiKey = process.env.WEB_SEARCH_API_KEY;
@@ -24,26 +32,51 @@ export async function webSearch(
   }
 
   try {
+    const params = new URLSearchParams({
+      q: trimmed,
+      format: 'json',
+      no_redirect: '1',
+      no_html: '1',
+      safesearch: safeSearch,
+      kl: region,
+    });
+
     const response = await fetch(
-      `https://api.duckduckgo.com/?q=${encodeURIComponent(trimmed)}&format=json`
+      `https://api.duckduckgo.com/?${params.toString()}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/json',
+        },
+        timeout: 10000,
+      }
     );
 
     if (!response.ok) {
-      throw new Error(`Search API error: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`Search API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
-    const data = (await response.json()) as Record<string, unknown>;
-    const results = (data.webPages as Record<string, unknown>)?.value || [];
+    const data = (await response.json()) as {
+      AbstractText?: string;
+      Results?: Array<{
+        FirstURL: string;
+        Text: string;
+        Title: string;
+      }>;
+    };
 
-    if (!Array.isArray(results) || results.length === 0) {
-      return `No search results found for: ${trimmed}`;
+    if (!data.Results || !Array.isArray(data.Results) || data.Results.length === 0) {
+      return [];
     }
 
-    return `Found ${results.length} results for "${trimmed}": ${(results as Array<Record<string, unknown>>)
-      .slice(0, limit)
-      .map((r: Record<string, unknown>) => r.name)
-      .join('; ')}`;
+    return data.Results.slice(0, limit).map(result => ({
+      title: result.Title || 'Untitled',
+      url: result.FirstURL || '',
+      snippet: result.Text || '',
+    }));
   } catch (error) {
-    throw new Error(`Failed to search for "${trimmed}": ${error instanceof Error ? error.message : String(error)}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to search for "${trimmed}": ${errorMessage}`);
   }
 }
