@@ -2,7 +2,7 @@ name: Daily Cron Job BRUH
 
 on:
   schedule:
-    - cron: "0 7 * * *"
+    - cron: "30 7 * * *"
 
 jobs:
   run-cron:
