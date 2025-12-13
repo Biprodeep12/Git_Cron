@@ -1,25 +1,25 @@
 name: Daily Cron Job BRUH
 
 on:
-    schedule:
-        - cron: "0 6 * * *"
+  schedule:
+    - cron: "0 7 * * *"
 
 jobs:
-    run-cron:
-        name: Run Scheduled Task
-        runs-on: ubuntu-latest
+  run-cron:
+    name: Run Scheduled Task
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 18
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-            - name: Install dependencies
-              run: npm install
+      - name: Install dependencies
+        run: npm install
 
-            - name: Run your cron script
-              run: npm run dev
+      - name: Run your cron script
+        run: npm run dev
