@@ -13,6 +13,11 @@ const client = new OpenAI({
 });
 
 function createToonPayload(entry: ManifestEntry, fileContent: string) {
+  const nextStepsStr = (Array.isArray(entry.next_steps) 
+    ? entry.next_steps 
+    : [entry.next_steps]
+  ).map(s => `"${s}"`).join(", ");
+
   return `
 file "${entry.filePath}" {
     content: """
@@ -21,7 +26,7 @@ ${fileContent}
     summary: """
 ${entry.summary}
     """
-    next_steps: [${Array.isArray(entry.next_steps) ? entry.next_steps.map(s => `"${s}"`).join(", ") : `"${entry.next_steps}"`}]
+    next_steps: [${nextStepsStr}]
     updated_at: "${entry.updated_at}"
 }
 `;
@@ -30,28 +35,34 @@ ${entry.summary}
 async function main() {
     const manifestPath = path.join(process.cwd(), "src/plan/manifest.json");
     let manifest: ManifestEntry[] = [];
+    
     if (fs.existsSync(manifestPath)) {
         try {
-        manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-        if (!Array.isArray(manifest)) manifest = [];
-        } catch {
-        manifest = [];
+            manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+            if (!Array.isArray(manifest)) manifest = [];
+        } catch (err) {
+            console.warn("Failed to parse manifest, starting fresh");
+            manifest = [];
         }
     }
-    const fullPath = path.join(process.cwd(), manifest[0].filePath);
 
+    if (manifest.length === 0) {
+        console.error("No manifest entries found");
+        process.exit(1);
+    }
+
+    const fullPath = path.join(process.cwd(), manifest[0].filePath);
     const fileContent = fs.readFileSync(fullPath, "utf8");
     const toonPayload = createToonPayload(manifest[0], fileContent);
 
     const response = await client.chat.completions.create({
         model: "openai/gpt-oss-20b:free",
         messages: [
-        {
-            role: "system",
-            content:
-            "You are an AI agent analyzing a source file in TOON format. Return ONLY JSON with keys: updated_code (full improved code), summary, next_steps. Keep functionality intact."
-        },
-        { role: "user", content: toonPayload }
+            {
+                role: "system",
+                content: "You are an AI agent analyzing a source file in TOON format. Return ONLY JSON with keys: updated_code (full improved code with unnecessary comments removed), summary, next_steps. Keep functionality intact. Remove any redundant or obvious comments while preserving important documentation."
+            },
+            { role: "user", content: toonPayload }
         ],
     });
 
@@ -81,10 +92,8 @@ async function main() {
         fs.mkdirSync(backupDir, { recursive: true });
     }
 
-    const backupPath = path.join(backupDir,path.basename(manifest[0].filePath) + ".bak");
-
+    const backupPath = path.join(backupDir, path.basename(manifest[0].filePath) + ".bak");
     fs.writeFileSync(backupPath, fileContent, "utf8");
-
 
     fs.writeFileSync(fullPath, parsed.updated_code, "utf8");
 

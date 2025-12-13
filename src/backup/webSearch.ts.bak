@@ -30,9 +30,11 @@ export async function webSearch(
     throw new Error('webSearch: query must be a non‑empty string');
   }
 
-  // The `limit` option is kept for future use; currently it is ignored.
+  // The `limit` option is currently unused, but we keep it so the
+  // function signature reflects a realistic API. The helper below prevents
+  // TS‑lint warnings about the unused variable.
   const { limit } = options;
-  _void(limit); // Prevent unused variable warning
+  _void(limit); // silence unused variable warning
 
   // Simulate async work (e.g., an HTTP request) without external dependencies.
   await new Promise((resolve) => setTimeout(resolve, 10));
@@ -41,7 +43,7 @@ export async function webSearch(
 }
 
 /**
- * Utility that no‑ops a value so the compiler does not complain about unused
- * parameters when the implementation is a stub.
+ * Utility that no‑ops a value so the compiler does not complain about
+ * unused‑parameter warnings when the implementation is a stub.
  */
 function _void(_value: unknown): void {}
