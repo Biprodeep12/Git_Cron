@@ -1,3 +1,4 @@
+
 export interface WebSearchOptions {
   limit?: number;
 }
@@ -11,7 +12,7 @@ export interface WebSearchOptions {
  * await webSearch('cats');
  * // => 'search results for: cats'
  *
- * @param query   – The search query string. Must be non‑empty after trimming.
+ * @param query – The search query string. Must be non‑empty after trimming.
  * @param options – Optional configuration, e.g. a future `limit` feature.
  * @returns A promise that resolves to a string representing the mock search
  *          results.
