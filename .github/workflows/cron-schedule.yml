@@ -57,6 +57,6 @@ jobs:
 
           curl -H "Content-Type: application/json" \
           -d "{
-            \"content\": \"**AI Cron Job Logs**\nRepository: ${{ github.repository }}\nAuthor: ${{ github.actor }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n\`\`\`\n$LOG_CONTENT\n\`\`\`\"
+            \"content\": \"**AI Cron Job Logs**\nRepository: ${{ github.repository }}\n\n\`\`\`\n$LOG_CONTENT\n\`\`\`\"
           }" \
           $DISCORD_WEBHOOK_URL
