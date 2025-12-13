@@ -6,7 +6,6 @@ async function saveToManifest(
   filePath: string,
   summary: string,
   next_steps: string[],
-  fileNo: number
 ) {
   const manifestPath = path.join(process.cwd(), "src/plan/manifest.json");
 

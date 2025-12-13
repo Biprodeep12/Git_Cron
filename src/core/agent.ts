@@ -97,7 +97,7 @@ async function main() {
 
     fs.writeFileSync(fullPath, parsed.updated_code, "utf8");
 
-    await saveToManifest(manifest[0].filePath, parsed.summary, parsed.next_steps, 0);
+    await saveToManifest(manifest[0].filePath, parsed.summary, parsed.next_steps);
 
     console.log("File updated successfully!");
     console.log("Summary:", parsed.summary);
