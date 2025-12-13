@@ -8,14 +8,18 @@ export interface WebSearchOptions {
 
 /**
  * Performs a mock web search. The function validates the input query and
- * returns a deterministic string that can be used in unit tests.  It accepts
+ * returns a deterministic string that can be used in unit tests. It accepts
  * an optional options object that may be extended later.
+ *
+ * @example
+ * await webSearch('cats');
+ * // => 'search results for: cats'
  *
  * @param query   – The search query string. Must be non‑empty after trimming.
  * @param options – Optional configuration, e.g. a future `limit` feature.
  * @returns A promise that resolves to a string representing the mock search
  *          results.
- * @throws Will throw an {@link Error} if the query is empty or only whitespace.
+ * @throws {Error} If the query is empty or only whitespace.
  */
 export async function webSearch(
   query: string,
@@ -26,10 +30,9 @@ export async function webSearch(
     throw new Error('webSearch: query must be a non‑empty string');
   }
 
-  // Optional limit is currently unused, but keeping the destructure keeps the
-  // signature clear if the feature is added later.
+  // The `limit` option is kept for future use; currently it is ignored.
   const { limit } = options;
-  _void(limit); // keep unused variable warning silence
+  _void(limit); // Prevent unused variable warning
 
   // Simulate async work (e.g., an HTTP request) without external dependencies.
   await new Promise((resolve) => setTimeout(resolve, 10));

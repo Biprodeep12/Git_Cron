@@ -1,34 +1,44 @@
 export interface WebSearchOptions {
   /**
-   * The maximum number of results to return. Currently unused but reserved for future expansion.
+   * The maximum number of results to return. Currently not used but kept for
+   * future expansion of the mock implementation.
    */
   limit?: number;
 }
 
 /**
- * Mock implementation of a web search that returns a simulated result string.
+ * Performs a mock web search. The function validates the input query and
+ * returns a deterministic string that can be used in unit tests.  It accepts
+ * an optional options object that may be extended later.
  *
- * The function validates its input and throws a descriptive error if the query
- * is empty or only whitespace.  It also accepts an optional options object that
- * can be extended in future iterations to e.g. limit the number of results or
- * configure the search provider.
- *
- * @param query - The search query string.
- * @param options - Optional search configuration.
- * @returns A promise that resolves to a string containing the simulated
- *          search results for the provided query.
+ * @param query   – The search query string. Must be non‑empty after trimming.
+ * @param options – Optional configuration, e.g. a future `limit` feature.
+ * @returns A promise that resolves to a string representing the mock search
+ *          results.
+ * @throws Will throw an {@link Error} if the query is empty or only whitespace.
  */
-export async function webSearch(query: string, options?: WebSearchOptions): Promise<string> {
-  // Trim to guard against accidental whitespace queries.
+export async function webSearch(
+  query: string,
+  options: WebSearchOptions = {},
+): Promise<string> {
   const trimmedQuery = query.trim();
   if (!trimmedQuery) {
     throw new Error('webSearch: query must be a non‑empty string');
   }
 
-  // Simulate an asynchronous operation; this mirrors the behaviour of a real
-  // HTTP request without performing network IO.
+  // Optional limit is currently unused, but keeping the destructure keeps the
+  // signature clear if the feature is added later.
+  const { limit } = options;
+  _void(limit); // keep unused variable warning silence
+
+  // Simulate async work (e.g., an HTTP request) without external dependencies.
   await new Promise((resolve) => setTimeout(resolve, 10));
 
-  // Return a deterministic result string for deterministic unit tests.
   return `search results for: ${trimmedQuery}`;
 }
+
+/**
+ * Utility that no‑ops a value so the compiler does not complain about unused
+ * parameters when the implementation is a stub.
+ */
+function _void(_value: unknown): void {}

@@ -1,10 +1,12 @@
 import fs from "fs";
 import path from "path";
+import { ManifestEntry } from "../types/maniffest";
 
 async function saveToManifest(
   filePath: string,
   summary: string,
-  next_steps: string[]
+  next_steps: string[],
+  fileNo: number
 ) {
   const manifestPath = path.join(process.cwd(), "src/plan/manifest.json");
 
@@ -13,7 +15,7 @@ async function saveToManifest(
     fs.mkdirSync(planDir, { recursive: true });
   }
 
-  let manifest: any[] = [];
+  let manifest: ManifestEntry[] = [];
   if (fs.existsSync(manifestPath)) {
     try {
       manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
@@ -23,12 +25,12 @@ async function saveToManifest(
     }
   }
 
-  manifest.push({
+  manifest[0]={
     filePath,
     summary,
     next_steps,
     updated_at: new Date().toISOString(),
-  });
+  };
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
 }
