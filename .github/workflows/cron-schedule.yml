@@ -2,7 +2,12 @@ name: Daily Cron Job BRUH
 
 on:
   schedule:
-    - cron: "30 7 * * *"
+    - cron: "30 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-cron
+  cancel-in-progress: true
 
 jobs:
   run-cron:
@@ -12,14 +17,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Run your cron script
-        run: npm run dev
+      - name: Run cron script
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: npm run cron
+
+      - name: Commit & push changes (if any)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add .
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+
+          git commit -m "chore: automated cron update"
+          git push

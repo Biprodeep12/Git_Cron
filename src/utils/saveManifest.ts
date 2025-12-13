@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ManifestEntry } from "../types/maniffest";
+import { ManifestEntry } from "../types/maniffest.js";
 
 async function saveToManifest(
   filePath: string,

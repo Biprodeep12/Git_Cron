@@ -49,7 +49,3 @@ node --loader ts-node/esm src/core/agent.ts
 - **tsconfig.json**: TypeScript compiler configuration
 - **package.json**: Project dependencies and scripts
 - **src/plan/manifest.json**: Manifest configuration file
-
-## License
-
-MIT

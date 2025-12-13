@@ -1,8 +1,4 @@
 export interface WebSearchOptions {
-  /**
-   * The maximum number of results to return. Currently not used but kept for
-   * future expansion of the mock implementation.
-   */
   limit?: number;
 }
 
@@ -38,8 +34,4 @@ export async function webSearch(
   return `search results for: ${trimmedQuery}`;
 }
 
-/**
- * Utility that no‑ops a value so the compiler does not complain about
- * unused‑parameter warnings when the implementation is a stub.
- */
 function _void(_value: unknown): void {}

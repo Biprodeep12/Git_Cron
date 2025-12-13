@@ -1,12 +1,12 @@
 [
   {
     "filePath": "src/tools/webSearch.ts",
-    "summary": "The `webSearch` module now contains a clean, well‑documented mock search function. It validates non‑empty queries, optionally accepts a `limit` flag (currently unused but preserved for future use), simulates async delay, and returns a deterministic string. A small helper `_void()` keeps the unused `limit` variable silent without affecting type safety. The code is fully typed, documented, and ready for integration.",
+    "summary": "The `webSearch` module validates non‑empty queries, optionally accepts a `limit` flag (currently unused but retained for future expansion), simulates an asynchronous delay, and returns a deterministic string. The helper `_void` is used to silence the unused `limit` variable without affecting type safety, while documentation is kept concise.",
     "next_steps": [
       "Run the project’s test suite to confirm no regressions.",
-      "If a linting rule flags the `_void` helper or the unused `limit` variable, either remove the helper and use a comment directive (e.g., `// eslint-disable-next-line @typescript-eslint/no-unused-vars`) or keep the helper as shown.",
+      "If a linting rule flags the `_void` helper or the unused `limit` variable, either remove the helper and use an eslint-disable comment, or keep the helper as shown.",
       "When the real `limit` feature is needed, replace the placeholder usage of `_void(limit)` with actual logic that respects the `limit` value."
     ],
-    "updated_at": "2025-12-13T05:40:05.047Z"
+    "updated_at": "2025-12-13T08:22:33.384Z"
   }
 ]

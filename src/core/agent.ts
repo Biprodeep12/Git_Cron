@@ -2,8 +2,8 @@ import { OpenAI } from "openai";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
-import saveToManifest from "../utils/saveManifest.ts";
-import { ManifestEntry } from "../types/maniffest.ts";
+import saveToManifest from "../utils/saveManifest.js";
+import { ManifestEntry } from "../types/maniffest.js";
 
 dotenv.config();
 

@@ -1,46 +1,30 @@
 /**
- * A lightweight, asynchronous stub that mimics a real web‑search
- * operation.  It is deliberately deterministic and performs no network I/O,
- * making it suitable for unit tests that need predictable results.
- *
- * @param query   A non‑empty search string.  Leading and trailing
- *                whitespace is trimmed before any processing.
- * @param options Optional configuration.  Currently only {@link limit}
- *                is recognised; any other options are ignored.
- *
- * @returns A promise that resolves to a human‑readable string containing
- *          the search query.  The resolved value can be used in tests or
- *          as a stand‑in for an actual HTTP response.
- *
- * @throws {TypeError}  If {@link query} is not a string.
- * @throws {Error}      If {@link query} is empty or only whitespace.
- * @throws {TypeError}  If {@link options.limit} is provided but is not a
- *                      positive integer.
+ * Performs a mock web search. The function validates the input query and
+ * returns a deterministic string that can be used in unit tests. It accepts
+ * an optional options object that may be extended later.
  *
  * @example
- * ```ts
- * await webSearch("TypeScript"); // "search results for: TypeScript"
- * ```
+ * await webSearch('cats');
+ * // => 'search results for: cats'
+ *
+ * @param query   – The search query string. Must be non‑empty after trimming.
+ * @param options – Optional configuration, e.g. a future `limit` feature.
+ * @returns A promise that resolves to a string representing the mock search
+ *          results.
+ * @throws {Error} If the query is empty or only whitespace.
  */
 export async function webSearch(query, options = {}) {
-    // --- Input validation ----------------------------------------------------
-    if (typeof query !== "string") {
-        throw new TypeError("webSearch: query must be a string");
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+        throw new Error('webSearch: query must be a non‑empty string');
     }
-    const trimmed = query.trim();
-    if (trimmed === "") {
-        throw new Error("webSearch: query must be a non‑empty string");
-    }
-    if (options.limit !== undefined) {
-        const { limit } = options;
-        if (!Number.isInteger(limit) || limit <= 0) {
-            throw new TypeError("webSearch: limit must be an integer greater than zero");
-        }
-    }
-    // --- Simulate async behaviour ------------------------------------------
-    // The 10ms delay mirrors the latency of an HTTP request without
-    // incurring real network traffic.
+    const { limit } = options;
+    _void(limit);
     await new Promise((resolve) => setTimeout(resolve, 10));
-    // --- Return deterministic result --------------------------------------
-    return `search results for: ${trimmed}`;
+    return `search results for: ${trimmedQuery}`;
 }
+/**
+ * Utility that no‑ops a value so the compiler does not complain about
+ * unused‑parameter warnings when the implementation is a stub.
+ */
+function _void(_value) { }

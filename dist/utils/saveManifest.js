@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-async function saveToManifest(filePath, summary, next_steps) {
+async function saveToManifest(filePath, summary, next_steps, fileNo) {
     const manifestPath = path.join(process.cwd(), "src/plan/manifest.json");
     const planDir = path.join(process.cwd(), "src/plan");
     if (!fs.existsSync(planDir)) {
@@ -17,12 +17,12 @@ async function saveToManifest(filePath, summary, next_steps) {
             manifest = [];
         }
     }
-    manifest.push({
+    manifest[0] = {
         filePath,
         summary,
         next_steps,
         updated_at: new Date().toISOString(),
-    });
+    };
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), "utf8");
 }
-export { saveToManifest };
+export default saveToManifest;

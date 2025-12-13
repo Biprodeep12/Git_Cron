@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --loader ts-node/esm src/core/agent.ts",
     "start": "node dist/core/agent.js",
-    "build": "tsc"
+    "build": "tsc && node scripts/addExtensions.cjs",
+    "cron": "node dist/core/agent.js"
   },
   "dependencies": {
     "dotenv": "^16.4.1",
