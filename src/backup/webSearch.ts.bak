@@ -41,16 +41,13 @@ export async function webSearch(
       kl: region,
     });
 
-    const response = await fetch(
-      `https://api.duckduckgo.com/?${params.toString()}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/json',
-        },
-        timeout: 10000,
-      }
-    );
+    const response = await fetch(`https://api.duckduckgo.com/?${params.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: 'application/json',
+      },
+      timeout: 10000,
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -59,11 +56,7 @@ export async function webSearch(
 
     const data = (await response.json()) as {
       AbstractText?: string;
-      Results?: Array<{
-        FirstURL: string;
-        Text: string;
-        Title: string;
-      }>;
+      Results?: Array<{ FirstURL: string; Text: string; Title: string }>;
     };
 
     if (!data.Results || !Array.isArray(data.Results) || data.Results.length === 0) {
