@@ -2,7 +2,7 @@ name: Daily Cron Job BRUH
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 3 * * *" # 08:30 AM IST
   workflow_dispatch:
 
 permissions:
@@ -35,7 +35,8 @@ jobs:
       - name: Run cron script
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: npm run cron 2>&1 | tee cron.log
+        run: |
+          npm run cron 2>&1 | tee cron.log
 
       - name: Commit & push changes (if any)
         run: |
@@ -50,13 +51,18 @@ jobs:
 
       - name: Send logs to Discord
         if: always()
+        shell: bash
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          LOG_CONTENT=$(tail -n 40 cron.log | sed 's/"/\\"/g')
+          # Trim logs to avoid Discord 2000-char limit
+          LOG_CONTENT=$(tail -n 40 cron.log | head -c 1800)
 
-          curl -H "Content-Type: application/json" \
-          -d "{
-            \"content\": \"**AI Cron Job Logs**\nRepository: ${{ github.repository }}\n\n\`\`\`\n$LOG_CONTENT\n\`\`\`\"
-          }" \
-          $DISCORD_WEBHOOK_URL
+          PAYLOAD=$(jq -n \
+            --arg content "**AI Cron Job Logs**\nRepository: ${{ github.repository }}\n\n\`\`\`\n$LOG_CONTENT\n\`\`\`" \
+            '{content: $content}')
+
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$DISCORD_WEBHOOK_URL"
