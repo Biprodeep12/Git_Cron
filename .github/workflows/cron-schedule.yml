@@ -1,8 +1,8 @@
 name: Daily Cron Job BRUH
 
 on:
-  schedule:
-    - cron: "0 3 * * *" # 08:30 AM IST
+  # schedule:
+  #   - cron: "0 3 * * *" # 08:30 AM IST
   workflow_dispatch:
 
 permissions:

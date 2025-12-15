@@ -32,7 +32,7 @@ OUTPUT JSON FORMAT (MANDATORY):
 {
   "updated_code": "FULL updated file content",
   "summary": "Concise summary of what changed and why",
-  "next_steps": ["Concrete next improvements or integrations"]
+  "next_steps": ["Concrete next improvements or integrations steps"]
 }
 
 If you detect a mock implementation, treating it as production-ready is a FAILURE.
