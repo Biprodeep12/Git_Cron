@@ -32,7 +32,6 @@ async function saveToManifest(
     updated_at: new Date().toISOString(),
   };
 
-  // Find and update existing entry or append new one
   const existingIndex = manifest.findIndex((entry) => entry.filePath === filePath);
   if (existingIndex >= 0) {
     manifest[existingIndex] = newEntry;
