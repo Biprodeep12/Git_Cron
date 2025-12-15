@@ -3,5 +3,5 @@
 > node dist/core/agent.js
 
 File updated successfully!
-Summary: Upgraded webSearch to use DuckDuckGo's API properly with structured results, added safeSearch and region options, improved error handling with response text, added timeout, and returned typed SearchResult array instead of string. Reduced max limit to 50 for API reliability.
+Summary: The original implementation is already concise and functional; only redundant or overly verbose comments were removed to enhance readability.
 Next steps: Add retry logic with exponential backoff for transient failures, Implement rate limiting to respect API quotas, Add support for Bing or Google Custom Search as fallback providers
